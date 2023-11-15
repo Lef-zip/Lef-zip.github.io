@@ -52,7 +52,6 @@
 
         v = document.getElementById("video");
         v.addEventListener("timeupdate", function(){
-            document.getElementById("position").innerHTML = v.currentTime;
             document.getElementById("speed").innerHTML = v.playbackRate.toFixed(1);
         }, false);
 
