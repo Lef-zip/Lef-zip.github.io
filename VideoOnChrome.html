@@ -9,12 +9,14 @@
 
 
 
+    <div id="drop_zone">
+        <!-- ビデオ領域にドロップ領域を重ねる -->
+        <video id="video" height="720" controls=""></video>
+    </div>
 
-    <video id="video" height="720" controls=""></video>
     <br>
-    5秒戻し: [ . 。 > ]<br>
-    5秒送り: [ / ・ ? ]
-    <br>
+    
+      
     <input type="file" id="filename" value="ファイル読み込み" accept="video/*,.mkv"><br>
     <div>
         <style>
@@ -40,9 +42,29 @@
 
     <script>
     var v;
+    var f = document.getElementById("filename");
+
 
     function init(){
-        var f = document.getElementById("filename");
+
+        var ddZone = document.getElementById("drop_zone");
+        ddZone.addEventListener('dragover', (event) => event.preventDefault());
+        ddZone.addEventListener( 'drop', function (event) {
+            // ダウンロードになるのを防ぐ(デフォルト操作の無効)
+            event.preventDefault();
+
+            // ドロップされたときのイベントのファイルを取得
+            f.files = event.dataTransfer.files;
+
+            // 下のファイル選択のイベント(f.addEventListener)と同様にビデオのソースを変更
+            var URL = URL || webkitURL;
+            document.querySelector('video').src = URL.createObjectURL(event.dataTransfer.files[0]);
+            document.getElementById('filename').innerHTML = document.querySelector('video').src;
+
+            
+        });
+
+
         f.addEventListener( "change", function (event) {
             var URL = URL || webkitURL;
             var file = event.target.files[0];
@@ -54,11 +76,6 @@
         v.addEventListener("timeupdate", function(){
             document.getElementById("speed").innerHTML = v.playbackRate.toFixed(1);
         }, false);
-
-        v.onloadeddata = function()
-        {
-            document.getElementById("length").innerHTML = v.duration;
-        }
 
         v.addEventListener("timeupdate", function(){
             document.getElementById("position").innerHTML = v.currentTime;
@@ -79,50 +96,6 @@
         
     }
 
-    function play() {
-        v.play();
-    }
-
-    function pause() {
-        v.pause();
-    }
-
-    function changeSpeed( val ) {
-        if ( v.playbackRate + val < 0.1 ) v.playbackRate = 0.1;
-        else v.playbackRate += val;
-    }
-
-    function setSpeed( speed ) {
-        if ( speed < 0.1 ){
-            speed = 0.1;
-        }
-        v.playbackRate = speed;
-    }
-
-    function changeVolume( val ) {
-        v.volume += val;
-        document.getElementById("volume").innerHTML = v.volume.toFixed(1);
-    }
-
-    function setVolume( val ){
-        v.volume = val;
-    }
-
-    function seekUp() {
-        v.currentTime += 1.0/60.0;
-    }
-
-    function seekDown() {
-        v.currentTime -= 1.0/60.0;
-    }
-
-    function seekToTop(){
-        v.currentTime = 0;
-    }
-
-    function seekToLast(){
-        v.currentTime = v.duration;
-    }
 
     function toSize(val){
         v.height=val;
