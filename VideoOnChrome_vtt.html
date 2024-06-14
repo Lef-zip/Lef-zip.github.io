@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<!-- saved from url=(0042)https://royalcrab.github.io/mp4_local.html -->
+<html lang="ja"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<title>Chromeによる動画再生</title>
+</head>
+<body>
+
+
+
+<div class="video_and_vtt">
+    <style>
+        .video_and_vtt {
+            display: flex;
+        }
+    </style>
+    <div id="drop_zone">
+        <!-- ビデオ領域にドロップ領域を重ねる -->
+        <video id="video" height="720" controls="">
+            <track id="jaTrack" src="" kind="subtitles" srclang="ja" label="テスト" default="default">
+        </video>
+    </div>
+    <div id="vtt_drop_zone" class="uploader" height="720">
+        ここに.vtt字幕ファイルをドロップしてください
+        <style>
+            .uploader {
+                width: 300px;
+                border: 2px dashed #ccc;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin-top: 20px;
+                color: #ccc;
+                text-align: center;
+            }
+            .uploader.dragover {
+                border-color: #666;
+                color: #666;
+            }
+
+        </style>
+    </div>
+</div>
+
+<br>
+
+  
+<input type="file" id="filename" value="ファイル読み込み" accept="video/*,.mkv"><br>
+<div>
+    <style>
+        .myButtonStyle{
+            width: 300px;
+            padding: 10px;
+            box-sizing: border-box;
+            border: 1px solid #68779a;
+            background: #cbe8fa;
+            cursor: pointer;
+        }
+    </style>
+     <input type="button" value="480" onclick="toSize(480)" class="myButtonStyle">
+     <input type="button" value="600" onclick="toSize(600)" class="myButtonStyle">
+     <input type="button" value="720" onclick="toSize(720)" class="myButtonStyle"> 
+     <input type="button" value="900" onclick="toSize(900)" class="myButtonStyle"> 
+
+    <br>
+
+    再生速度  ：<span id="speed">1.0</span><br>
+    <span id="message"></span>
+</div>
+
+<script>
+    // 字幕ドロップゾーン
+    document.addEventListener('DOMContentLoaded', () => {
+        const dropzone = document.getElementById('vtt_drop_zone');
+        const subtitleTrack = document.getElementById('jaTrack');
+
+        dropzone.addEventListener('dragover', (event) => {
+            event.preventDefault();
+            dropzone.classList.add('dragover');
+        });
+
+        dropzone.addEventListener('dragleave', () => {
+            dropzone.classList.remove('dragover');
+        });
+
+        dropzone.addEventListener('drop', (event) => {
+            event.preventDefault();
+            dropzone.classList.remove('dragover');
+
+            const files = event.dataTransfer.files;
+            if (files.length > 0) {
+                const file = files[0];
+                if (file.name.endsWith('.vtt')) {
+                    const vttUrl = URL.createObjectURL(file);
+                    subtitleTrack.src = vttUrl;
+                    subtitleTrack.track.mode = 'showing'; // 字幕をすぐに表示する
+                } else {
+                    alert('.vttファイルをドロップしてください。');
+                }
+            }
+        });
+    });
+
+
+var v;
+var t;
+var vtt_area = document.getElementById("vtt_drop_zone");
+var f = document.getElementById("filename");
+
+
+function init(){
+
+    var ddZone = document.getElementById("drop_zone");
+    ddZone.addEventListener('dragover', (event) => event.preventDefault());
+    ddZone.addEventListener( 'drop', function (event) {
+        // ダウンロードになるのを防ぐ(デフォルト操作の無効)
+        event.preventDefault();
+
+        // ドロップされたときのイベントのファイルを取得
+        f.files = event.dataTransfer.files;
+
+        // 下のファイル選択のイベント(f.addEventListener)と同様にビデオのソースを変更
+        var URL = URL || webkitURL;
+        document.querySelector('video').src = URL.createObjectURL(event.dataTransfer.files[0]);
+        document.getElementById('filename').innerHTML = document.querySelector('video').src;
+
+        
+    });
+
+
+    f.addEventListener( "change", function (event) {
+        var URL = URL || webkitURL;
+        var file = event.target.files[0];
+        document.querySelector('video').src = URL.createObjectURL(file);
+        document.getElementById('filename').innerHTML = document.querySelector('video').src;
+    }, false );
+
+    v = document.getElementById("video");
+    v.addEventListener("timeupdate", function(){
+        document.getElementById("speed").innerHTML = v.playbackRate.toFixed(1);
+    }, false);
+
+    v.addEventListener("timeupdate", function(){
+        document.getElementById("position").innerHTML = v.currentTime;
+        document.getElementById("speed").innerHTML = v.playbackRate.toFixed(1);
+    }, false);
+
+    v.addEventListener("ended", function(){
+        document.getElementById("message").innerHTML = "finished";
+    }, false);
+
+    v.addEventListener("pause", function(){
+        document.getElementById("message").innerHTML = "paused";
+    },false);
+
+    v.addEventListener("play", function(){
+        document.getElementById("message").innerHTML = "play";
+    },false);
+    
+}
+
+
+function toSize(val){
+    v.height=val;
+    vtt_area.height=val
+}
+
+init();
+</script>
+
+
+
+
+
+</body></html>
